@@ -14,14 +14,14 @@ def get_urls(page):
     req = requests.get(page, verify=False)
     soup = BeautifulSoup(req.text, 'html.parser')
 
-    print('Parsing iframes...')
     for iframe in soup.find_all('iframe'):
+        print('Fetching iframe...')
         r = requests.get(iframe.get('src'), verify=False)
         iframe_soup = BeautifulSoup(r.text, 'html.parser')
+        print('Parsing iframe elements...')
         for element in iframe_soup.find_all('source'):
             urls.append(element.get('src'))
-
-    print(f'Found {len(urls)} urls to download on page "{page}".')
+    print(f'Total of {len(urls)} urls found to download on page "{page}".')
     return urls
 
 
@@ -69,6 +69,10 @@ def main():
 
             # feed the url list and the book directory to aria2c for download
             download(book_dir_path, url_list_path)
+            print(f'Done working on "{book}".')
+
+        print(f'Done working on subject "{subject}".')
+    print('All done!')
 
 
 if __name__ == '__main__':
