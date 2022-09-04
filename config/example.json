@@ -1,6 +1,9 @@
 {
-    "subject": {
-        "book_1": "https://example.com/book-1",
-        "book_2": "https://example.com/book-2"
+    "output": "data",
+    "subjects": {
+        "subject1": {
+            "book_1": "https://book1url",
+            "book_2": "https://book2url"
+        }
     }
 }
