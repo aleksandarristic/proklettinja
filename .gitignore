@@ -1,0 +1,6 @@
+.idea
+.venv
+!config/example.json
+config/config.json
+data/*
+!data/.keep
