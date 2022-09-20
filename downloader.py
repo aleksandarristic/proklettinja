@@ -3,24 +3,31 @@ import os
 import subprocess
 
 import requests
-import urllib3
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
 
+import urllib3
 urllib3.disable_warnings()
+
+
+def create_name(url):
+    return urlparse(url).path.strip('/').split('/')[-1].replace(' ', '-') + '.mp3'
 
 
 def get_urls(page):
     urls = []
     req = requests.get(page, verify=False)
     soup = BeautifulSoup(req.text, 'html.parser')
-
+    print('Working on iframes', end='')
     for iframe in soup.find_all('iframe'):
-        print('Fetching iframe...')
-        r = requests.get(iframe.get('src'), verify=False)
+        base_url = iframe.get('src')
+        print('.', end='', flush=True)
+        r = requests.get(base_url, verify=False)
         iframe_soup = BeautifulSoup(r.text, 'html.parser')
-        print('Parsing iframe elements...')
         for element in iframe_soup.find_all('source'):
-            urls.append(element.get('src'))
+            url = urljoin(base_url, element.get('src'))
+            name = create_name(base_url)
+            urls.append((url, name))
     print(f'Total of {len(urls)} urls found to download on page "{page}".')
     return urls
 
@@ -62,7 +69,8 @@ def main():
 
             # create an url list for this book
             with open(url_list_path, 'w') as f:
-                f.write("\n".join(book_urls))
+                for url, name in book_urls:
+                    f.write(f'{url}\n\tout={name}\n')
 
             print(f'File list saved to "{url_list_path}".')
             print(f'Downloading with aria2c...')
